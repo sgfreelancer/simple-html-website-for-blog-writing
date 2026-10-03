@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Writer</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+header {
+    background: #222;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin: 15px 0 7px;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    font-size: 15px;
+}
+
+textarea {
+    min-height: 400px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+button {
+    border: none;
+    padding: 11px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    background: #222;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+.stats {
+    display: flex;
+    gap: 25px;
+    margin: 15px 0;
+    font-size: 14px;
+    color: #666;
+    flex-wrap: wrap;
+}
+
+.actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.preview {
+    margin-top: 30px;
+    padding: 25px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.preview h2 {
+    margin-top: 0;
+}
+
+#previewContent {
+    line-height: 1.8;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>✍️ Blog Writer</h1>
+    <p>Create, edit and preview your blog articles</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<label>Blog Title</label>
+<input type="text" id="title"
+placeholder="Enter your blog title...">
+
+<label>Category</label>
+<select id="category">
+    <option>General</option>
+    <option>Technology</option>
+    <option>Business</option>
+    <option>Marketing</option>
+    <option>SEO</option>
+    <option>Travel</option>
+    <option>Health</option>
+    <option>Education</option>
+    <option>Lifestyle</option>
+</select>
+
+<label>Target Keywords</label>
+<input type="text" id="keywords"
+placeholder="Example: web design Singapore, SEO services">
+
+<label>Blog Content</label>
+
+<div class="toolbar">
+    <button onclick="formatText('bold')">Bold</button>
+    <button onclick="formatText('italic')">Italic</button>
+    <button onclick="addHeading()">Heading</button>
+    <button onclick="addList()">List</button>
+    <button onclick="addParagraph()">Paragraph</button>
+</div>
+
+<textarea id="content"
+placeholder="Start writing your blog article here..."
+oninput="updateStats()"></textarea>
+
+<div class="stats">
+    <span>Words: <strong id="wordCount">0</strong></span>
+    <span>Characters: <strong id="charCount">0</strong></span>
+    <span>Reading time: <strong id="readingTime">0 min</strong></span>
+</div>
+
+<div class="actions">
+    <button onclick="previewBlog()">👁 Preview</button>
+    <button onclick="saveDraft()">💾 Save Draft</button>
+    <button onclick="clearBlog()">🗑 Clear</button>
+    <button onclick="downloadBlog()">⬇ Download HTML</button>
+</div>
+
+<div class="preview" id="preview" style="display:none;">
+    <h2 id="previewTitle"></h2>
+    <p><strong>Category:</strong> <span id="previewCategory"></span></p>
+    <p><strong>Keywords:</strong> <span id="previewKeywords"></span></p>
+    <hr>
+    <div id="previewContent"></div>
+</div>
+
+</div>
+</div>
+
+<footer>
+    Simple Blog Writing Tool
+</footer>
+
+<script>
+
+function updateStats() {
+
+    const text = document.getElementById("content").value.trim();
+
+    const words = text === "" ? 0 : text.split(/\s+/).length;
+    const chars = text.length;
+
+    const reading = Math.max(1, Math.ceil(words / 200));
+
+    document.getElementById("wordCount").innerText = words;
+    document.getElementById("charCount").innerText = chars;
+    document.getElementById("readingTime").innerText =
+        words === 0 ? "0 min" : reading + " min";
+}
+
+function formatText(type) {
+
+    const textarea = document.getElementById("content");
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    const selected = textarea.value.substring(start, end);
+
+    if (!selected) {
+        alert("Select some text first.");
+        return;
+    }
+
+    let formatted = selected;
+
+    if (type === "bold") {
+        formatted = "**" + selected + "**";
+    }
+
+    if (type === "italic") {
+        formatted = "*" + selected + "*";
+    }
+
+    textarea.value =
+        textarea.value.substring(0, start) +
+        formatted +
+        textarea.value.substring(end);
+
+    updateStats();
+}
+
+function addHeading() {
+
+    const textarea = document.getElementById("content");
+
+    textarea.value += "\n\n## Your Heading\n\n";
+
+    textarea.focus();
+    updateStats();
+}
+
+function addList() {
+
+    const textarea = document.getElementById("content");
+
+    textarea.value +=
+        "\n\n- First point\n- Second point\n- Third point\n\n";
+
+    textarea.focus();
+    updateStats();
+}
+
+function addParagraph() {
+
+    const textarea = document.getElementById("content");
+
+    textarea.value += "\n\nWrite your paragraph here...\n\n";
+
+    textarea.focus();
+    updateStats();
+}
+
+function previewBlog() {
+
+    const title =
+        document.getElementById("title").value || "Untitled Blog";
+
+    const category =
+        document.getElementById("category").value;
+
+    const keywords =
+        document.getElementById("keywords").value || "None";
+
+    let content =
+        document.getElementById("content").value;
+
+    content = content
+        .replace(/^## (.*)$/gm, "<h3>$1</h3>")
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+        .replace(/^- (.*)$/gm, "<li>$1</li>")
+        .replace(/\n\n/g, "<p>")
+        .replace(/\n/g, "<br>");
+
+    document.getElementById("previewTitle").innerText = title;
+    document.getElementById("previewCategory").innerText = category;
+    document.getElementById("previewKeywords").innerText = keywords;
+    document.getElementById("previewContent").innerHTML = content;
+
+    document.getElementById("preview").style.display = "block";
+}
+
+function saveDraft() {
+
+    const blog = {
+        title: document.getElementById("title").value,
+        category: document.getElementById("category").value,
+        keywords: document.getElementById("keywords").value,
+        content: document.getElementById("content").value
+    };
+
+    localStorage.setItem("blogDraft", JSON.stringify(blog));
+
+    alert("Blog draft saved successfully!");
+}
+
+function loadDraft() {
+
+    const saved = localStorage.getItem("blogDraft");
+
+    if (!saved) return;
+
+    const blog = JSON.parse(saved);
+
+    document.getElementById("title").value = blog.title || "";
+    document.getElementById("category").value = blog.category || "General";
+    document.getElementById("keywords").value = blog.keywords || "";
+    document.getElementById("content").value = blog.content || "";
+
+    updateStats();
+}
+
+function clearBlog() {
+
+    if (confirm("Are you sure you want to clear the blog?")) {
+
+        document.getElementById("title").value = "";
+        document.getElementById("keywords").value = "";
+        document.getElementById("content").value = "";
+
+        document.getElementById("preview").style.display = "none";
+
+        updateStats();
+    }
+}
+
+function downloadBlog() {
+
+    const title =
+        document.getElementById("title").value || "blog";
+
+    const content =
+        document.getElementById("content").value
+        .replace(/\n/g, "<br>");
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<style>
+body {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    line-height: 1.8;
+}
+</style>
+</head>
+<body>
+<h1>${title}</h1>
+${content}
+</body>
+</html>`;
+
+    const blob = new Blob([html], {
+        type: "text/html"
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = title.replace(/\s+/g, "-") + ".html";
+
+    link.click();
+
+    URL.revokeObjectURL(url);
+}
+
+window.onload = loadDraft;
+
+</script>
+
+</body>
+</html>
